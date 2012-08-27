@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+
+    <script>
+var socket = io.connect();
+socket.on('counter', function (data) {
+  $('#count').text(data);
+});
+socket.on('update_message', function (data) {
+  var str = data["name"] + " : " + data["body"];
+  str = "<p>" + str + "</p>";
+  $('#log').append(str);
+});
+
+// refer https://gist.github.com/594837
+;(function($){
+    $.escapeHTML = function(val) {
+        return $("<div/>").text(val).html();
+    };
+})(jQuery);
+
+function send_comment() {
+  var comment = document.getElementById('comment_body').value;
+  var myname = document.getElementById('myname').value;
+
+  comment = $.escapeHTML(comment);
+  myname = $.escapeHTML(myname);
+
+  if (comment == "" || myname == "") {
+    window.alert("送信するメッセージ、もしくは名前が空です");
+    return;
+  }
+  socket.emit('message', {"name" : myname, "body" : comment});
+  document.getElementById('comment_body').value = "";
+}
+    </script>
+  </head>
+  
+  <body>
+
+    おなまえ
+    <form method="post" action="#" style="display:inline">
+      <input type="text" id="myname" size="10" value="noname">
+    </form>
+
+
+    <div style="float:right">
+    現在の閲覧者:
+    <div id="count" style="display:inline">hoge</div>
+    人
+    </div>
+
+  <hr size="1">
+  
+  <div id="log"></div>
+
+  <form method="post" action="#">
+  <input type="text" size="50" id="comment_body" name="comment">
+  <input type="button" value="send" onclick="send_comment()">
+  <input type="reset" value="reset">
+  </form>
+</body>
+
+</html>
